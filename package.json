@@ -1,22 +1,11 @@
 {
-  "name": "أجي-نتعلم---النسخة-المدمجة",
+  "name": "ajitnaalam",
+  "version": "2.0.0",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "description": "منصة أجي نتعلم التعليمية",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "start": "echo 'Run index.html in browser'",
+    "build": "echo 'No build needed'"
   },
-  "dependencies": {
-    "react": "^19.2.3",
-    "@google/genai": "1.34.0",
-    "react-dom": "^19.2.3"
-  },
-  "devDependencies": {
-    "@types/node": "^22.14.0",
-    "@vitejs/plugin-react": "^5.0.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0"
-  }
+  "dependencies": {}
 }

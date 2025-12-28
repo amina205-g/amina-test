@@ -1,20 +1,37 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
 
-# Run and deploy your AI Studio app
+# 🎓 منصة أجي نتعلم - AjitNaalam
 
-This contains everything you need to run your app locally.
+![Netlify](https://img.shields.io/badge/Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Gemini AI](https://img.shields.io/badge/Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)
 
-View your app in AI Studio: https://ai.studio/apps/drive/1vr7wwtkjAz5YSheEXRoFDqeeJMRrnWkH
+**أجي نتعلم** هي منصة تعليمية رقمية مغربية متكاملة مدعومة بالذكاء الاصطناعي.
 
-## Run Locally
+---
 
-**Prerequisites:**  Node.js
+## 🚀 خطوات الرفع على Netlify (الربط المباشر)
 
+1. **ارفع مشروعك على GitHub**: (تأكد من اتباع خطوات الرفع التي شرحناها سابقاً).
+2. **سجل في Netlify**: اذهب إلى [netlify.com](https://www.netlify.com) وسجل دخولك باستخدام حساب GitHub.
+3. **إضافة موقع جديد**: اضغط على **"Add new site"** ثم اختر **"Import an existing project"**.
+4. **اختر المستودع**: اختر مستودع `ajitnaalam` من قائمة مشاريعك في GitHub.
+5. **إعدادات التشغيل**:
+   - **Build Command**: اتركه فارغاً (لأننا نستخدم ES Modules مباشرة).
+   - **Publish directory**: اكتب `.` (نقطة) أو اتركه كما هو.
+6. **إضافة مفتاح الذكاء الاصطناعي (مهم جداً)**:
+   - اذهب إلى **Site settings** > **Environment variables**.
+   - أضف متغيراً جديداً باسم `API_KEY` وضع فيه مفتاح Gemini الخاص بك.
+7. **نشر الموقع**: اضغط على **Deploy site**.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+---
+
+## ✨ المميزات الرئيسية
+- 🤖 مساعد ذكي بـ Gemini Pro.
+- 📚 مكتبة شاملة للمنهج المغربي.
+- 📱 تصميم متجاوب 100%.
+
+## 🛠 التقنيات
+React, TypeScript, Tailwind CSS, Google Gemini API.
+
+---
+**صنع بـ ❤️ لخدمة تلاميذ المغرب 🇲🇦**
