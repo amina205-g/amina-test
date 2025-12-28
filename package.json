@@ -1,11 +1,22 @@
 {
   "name": "ajitnaalam",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
-  "description": "منصة أجي نتعلم التعليمية",
+  "type": "module",
   "scripts": {
-    "start": "echo 'Run index.html in browser'",
-    "build": "echo 'No build needed'"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
-  "dependencies": {}
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@google/genai": "^1.34.0"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0",
+    "typescript": "^5.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0"
+  }
 }
