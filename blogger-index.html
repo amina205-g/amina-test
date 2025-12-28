@@ -1,0 +1,287 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أجي نتعلم | المنصة التعليمية الرقمية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #020617; color: white; margin: 0; }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .footer-link { transition: all 0.3s ease; color: #94a3b8; }
+        .footer-link:hover { color: #3b82f6; transform: translateX(-5px); }
+        /* لإخفاء عناصر بلوجر الافتراضية */
+        #header-wrapper, .sidebar-wrapper, .footer-wrapper { display: none !important; }
+        .main-inner { padding: 0 !important; max-width: 100% !important; }
+    </style>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@19.0.0",
+        "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+        "@google/genai": "https://esm.sh/@google/genai@1.34.0"
+      }
+    }
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel" data-type="module">
+        import React, { useState, useEffect, useRef } from 'react';
+        import { createRoot } from 'react-dom/client';
+        import { GoogleGenAI } from "@google/genai";
+
+        const SITE_DATA = {
+            levels: [
+                { id: 'secondary', name: 'التعليم الثانوي', icon: '🎓', color: 'border-blue-500', grades: ['جذع مشترك', '1 باك', '2 باك'], img: 'https://images.unsplash.com/photo-1523050335102-c67347207527?q=80&w=400' },
+                { id: 'middle', name: 'التعليم الإعدادي', icon: '🎒', color: 'border-emerald-500', grades: ['1 إعدادي', '2 إعدادي', '3 إعدادي'], img: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=400' },
+                { id: 'primary', name: 'التعليم الابتدائي', icon: '🎨', color: 'border-orange-500', grades: ['المستوى 1-6'], img: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=400' }
+            ],
+            subjects: [
+                { id: 'math', name: 'الرياضيات (BIOF)', icon: '📐', color: 'text-blue-500' },
+                { id: 'pc', name: 'الفيزياء (BIOF)', icon: '🧪', color: 'text-purple-500' },
+                { id: 'svt', name: 'علوم الحياة (BIOF)', icon: '🌱', color: 'text-green-500' },
+                { id: 'arab', name: 'اللغة العربية', icon: '📖', color: 'text-red-500' }
+            ]
+        };
+
+        const App = () => {
+            const [page, setPage] = useState('home');
+            const [selectedLevel, setSelectedLevel] = useState(null);
+            const [isAiOpen, setIsAiOpen] = useState(false);
+            const [messages, setMessages] = useState([{ role: 'ai', text: 'مرحباً بك في أجي نتعلم! أنا مساعدك الذكي، كيف أساعدك اليوم؟' }]);
+            const [input, setInput] = useState('');
+            const [loading, setLoading] = useState(false);
+
+            const askAi = async (text = input) => {
+                if (!text.trim()) return;
+                setMessages(prev => [...prev, { role: 'user', text }]);
+                setInput('');
+                setLoading(true);
+                try {
+                    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+                    const response = await ai.models.generateContent({
+                        model: 'gemini-3-flash-preview',
+                        contents: text,
+                        config: { systemInstruction: "أنت مساعد تعليمي مغربي خبير." }
+                    });
+                    setMessages(prev => [...prev, { role: 'ai', text: response.text }]);
+                } catch {
+                    setMessages(prev => [...prev, { role: 'ai', text: 'عذراً، حدث خطأ في الاتصال.' }]);
+                }
+                setLoading(false);
+            };
+
+            const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            const navigate = (p, level = null) => {
+                setPage(p);
+                setSelectedLevel(level);
+                scrollToTop();
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    {/* Header */}
+                    <header className="fixed top-0 w-full z-50 glass py-4 px-6 border-b border-white/5">
+                        <div className="container mx-auto flex justify-between items-center">
+                            <button onClick={() => navigate('login')} className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-xl font-bold text-sm transition shadow-lg">دخول</button>
+                            <div onClick={() => navigate('home')} className="flex items-center gap-3 cursor-pointer group">
+                                <div className="text-right">
+                                    <h1 className="text-xl font-black group-hover:text-blue-400 transition">أجي نتعلم</h1>
+                                    <p className="text-[9px] text-emerald-400 font-bold uppercase tracking-widest">ajitnaalam.com</p>
+                                </div>
+                                <div className="w-10 h-12 bg-red-600 rounded-lg flex items-center justify-center relative shadow-xl border border-red-500/20">
+                                    <div className="w-7 h-9 bg-white rounded-sm"></div>
+                                    <div className="absolute top-0 right-1.5 w-1.5 h-4 bg-emerald-500 rounded-b-sm"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Content Router */}
+                    <main className="flex-grow pt-28 pb-12 px-4 container mx-auto">
+                        {page === 'home' && (
+                            <div className="text-center animate-fade-in">
+                                <h2 className="text-5xl md:text-8xl font-black mb-8 leading-tight">مستقبلك يبدأ <span className="text-blue-500">هنا</span></h2>
+                                <p className="text-slate-400 text-xl md:text-2xl mb-16 font-bold">المنصة التعليمية الرقمية الأولى في المغرب 🇲🇦</p>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                                    {SITE_DATA.levels.map(l => (
+                                        <div key={l.id} onClick={() => navigate('subjects', l)} className={`bg-slate-900/40 p-10 rounded-[3rem] border-r-8 ${l.color} cursor-pointer hover:bg-slate-800 transition-all text-right shadow-2xl border border-white/5`}>
+                                            <div className="text-5xl mb-4">{l.icon}</div>
+                                            <h3 className="text-3xl font-black">{l.name}</h3>
+                                            <p className="text-xs text-slate-500 mt-4 font-bold">{l.grades.join(' • ')}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {page === 'subjects' && (
+                            <div className="animate-fade-in text-right">
+                                <button onClick={() => navigate('home')} className="text-blue-500 mb-8 font-black hover:mr-2 transition-all">← العودة للرئيسية</button>
+                                <h2 className="text-4xl font-black mb-12">مواد {selectedLevel?.name}</h2>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                    {SITE_DATA.subjects.map(s => (
+                                        <div key={s.id} onClick={() => setIsAiOpen(true)} className="bg-slate-900/40 p-10 rounded-[2.5rem] text-center cursor-pointer hover:bg-slate-800 transition-all border border-white/5 shadow-xl">
+                                            <div className="text-6xl mb-6">{s.icon}</div>
+                                            <h4 className={`text-xl font-black ${s.color}`}>{s.name}</h4>
+                                            <p className="text-[10px] text-slate-500 mt-2 font-bold uppercase tracking-widest">تصفح المحتوى</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {['login', 'privacy', 'terms', 'contact', 'faq'].includes(page) && (
+                            <div className="animate-fade-in max-w-4xl mx-auto text-right bg-slate-900/40 p-10 md:p-16 rounded-[3rem] border border-white/5 shadow-2xl">
+                                <button onClick={() => navigate('home')} className="text-blue-500 mb-8 font-black">← العودة للرئيسية</button>
+                                <h2 className="text-4xl font-black mb-6">
+                                    {page === 'login' && 'تسجيل الدخول'}
+                                    {page === 'privacy' && 'سياسة الخصوصية'}
+                                    {page === 'terms' && 'شروط الاستخدام'}
+                                    {page === 'contact' && 'اتصل بنا'}
+                                    {page === 'faq' && 'الأسئلة الشائعة'}
+                                </h2>
+                                <p className="text-slate-400 text-lg leading-relaxed">
+                                    هذا القسم قيد التحديث ليوفر لكم أفضل تجربة تعليمية. 
+                                    منصة أجي نتعلم تلتزم دائماً بتقديم محتوى عالي الجودة لجميع التلاميذ المغاربة.
+                                </p>
+                            </div>
+                        )}
+                    </main>
+
+                    {/* --- PROFESSIONAL FOOTER --- */}
+                    <footer className="bg-[#030712] border-t border-white/5 pt-20 pb-10">
+                        <div className="container mx-auto px-6">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 text-right mb-16">
+                                {/* Branding */}
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-3 justify-end">
+                                        <h3 className="text-2xl font-black">أجي نتعلم</h3>
+                                        <div className="w-8 h-10 bg-red-600 rounded-lg flex items-center justify-center border border-red-500/20 shadow-xl">
+                                            <div className="w-5 h-7 bg-white rounded-sm"></div>
+                                        </div>
+                                    </div>
+                                    <p className="text-slate-400 text-sm leading-relaxed font-medium">
+                                        المنصة الرقمية الأولى لمواكبة تلاميذ الابتدائي، الإعدادي والثانوي في المغرب. دروس تفاعلية، شروحات ذكية، وامتحانات مصححة.
+                                    </p>
+                                    <div className="flex justify-end gap-4 mt-6">
+                                        {[
+                                            { icon: 'fa-whatsapp', color: 'hover:text-green-500' },
+                                            { icon: 'fa-facebook-f', color: 'hover:text-blue-500' },
+                                            { icon: 'fa-youtube', color: 'hover:text-red-500' },
+                                            { icon: 'fa-instagram', color: 'hover:text-pink-500' }
+                                        ].map((s, i) => (
+                                            <a key={i} href="#" className={`w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-slate-400 transition-all ${s.color} hover:bg-white/10`}>
+                                                <i className={`fab ${s.icon}`}></i>
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Quick Links */}
+                                <div>
+                                    <h4 className="text-white font-black mb-8 border-r-4 border-blue-600 pr-4">روابط سريعة</h4>
+                                    <ul className="space-y-4">
+                                        <li><button onClick={() => navigate('home')} className="footer-link block w-full text-right font-bold text-sm">الرئيسية</button></li>
+                                        <li><button onClick={() => navigate('contact')} className="footer-link block w-full text-right font-bold text-sm">اتصل بنا</button></li>
+                                        <li><button onClick={() => navigate('faq')} className="footer-link block w-full text-right font-bold text-sm">الأسئلة الشائعة</button></li>
+                                        <li><button onClick={() => navigate('login')} className="footer-link block w-full text-right font-bold text-sm">انضم إلينا</button></li>
+                                    </ul>
+                                </div>
+
+                                {/* Levels */}
+                                <div>
+                                    <h4 className="text-white font-black mb-8 border-r-4 border-emerald-500 pr-4">الأقسام التعليمية</h4>
+                                    <ul className="space-y-4">
+                                        {SITE_DATA.levels.map(l => (
+                                            <li key={l.id}><button onClick={() => navigate('subjects', l)} className="footer-link block w-full text-right font-bold text-sm">{l.name}</button></li>
+                                        ))}
+                                        <li><button onClick={() => navigate('home')} className="footer-link block w-full text-right font-bold text-sm">المكتبة الرقمية</button></li>
+                                    </ul>
+                                </div>
+
+                                {/* Legal */}
+                                <div>
+                                    <h4 className="text-white font-black mb-8 border-r-4 border-red-500 pr-4">قانوني</h4>
+                                    <ul className="space-y-4">
+                                        <li><button onClick={() => navigate('privacy')} className="footer-link block w-full text-right font-bold text-sm">سياسة الخصوصية</button></li>
+                                        <li><button onClick={() => navigate('terms')} className="footer-link block w-full text-right font-bold text-sm">شروط الاستخدام</button></li>
+                                        <li><button className="footer-link block w-full text-right font-bold text-sm">حقوق الملكية</button></li>
+                                    </ul>
+                                    <div className="mt-8">
+                                        <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+                                            <p className="text-[10px] text-slate-500 font-bold mb-3 uppercase tracking-widest">اشترك في النشرة</p>
+                                            <div className="flex gap-2">
+                                                <input placeholder="بريدك..." className="bg-transparent text-xs outline-none border-b border-white/10 flex-grow" />
+                                                <button className="text-blue-500"><i className="fas fa-paper-plane"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+                                <div className="flex items-center gap-4 order-2 md:order-1">
+                                    <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">صنع بـ ❤️ في المغرب</span>
+                                    <span className="w-1 h-1 bg-slate-800 rounded-full"></span>
+                                    <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">ajitnaalam.com</span>
+                                </div>
+                                <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.2em] order-1 md:order-2">
+                                    جميع الحقوق محفوظة © 2024 - منصة أجي نتعلم الرقمية 🇲🇦
+                                </p>
+                            </div>
+                        </div>
+                    </footer>
+
+                    {/* AI Chat Drawer */}
+                    {isAiOpen && (
+                        <div className="fixed inset-0 md:inset-auto md:bottom-8 md:right-8 md:w-[420px] h-full md:h-[650px] bg-white rounded-none md:rounded-[2.5rem] z-[100] flex flex-col shadow-2xl overflow-hidden border border-blue-100 animate-fade-in text-slate-900">
+                            <div className="bg-blue-600 p-6 text-white flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl">🤖</div>
+                                    <span className="font-black">المساعد الذكي Pro</span>
+                                </div>
+                                <button onClick={() => setIsAiOpen(false)}><i className="fas fa-times"></i></button>
+                            </div>
+                            <div className="flex-grow overflow-y-auto p-6 space-y-4 bg-slate-50">
+                                {messages.map((m, i) => (
+                                    <div key={i} className={`flex ${m.role === 'user' ? 'justify-start' : 'justify-end'}`}>
+                                        <div className={`max-w-[85%] p-4 rounded-3xl text-sm ${m.role === 'user' ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 rounded-tl-none shadow-sm'}`}>
+                                            {m.text}
+                                        </div>
+                                    </div>
+                                ))}
+                                {loading && <div className="text-blue-600 text-xs animate-pulse font-bold">جاري التفكير...</div>}
+                            </div>
+                            <div className="p-4 bg-white border-t flex gap-2">
+                                <input value={input} onChange={e => setInput(e.target.value)} placeholder="اسأل عن أي درس..." className="flex-grow bg-slate-100 rounded-2xl px-5 py-3 outline-none text-right font-bold" onKeyPress={e => e.key === 'Enter' && askAi()} />
+                                <button onClick={() => askAi()} className="bg-blue-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg"><i className="fas fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    )}
+
+                    {!isAiOpen && (
+                        <button onClick={() => setIsAiOpen(true)} className="fixed bottom-8 left-8 w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl z-[90] hover:scale-110 transition">
+                            <i className="fas fa-robot"></i>
+                        </button>
+                    )}
+                </div>
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</body>
+</html>
